@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="text-center">Top Enchère</h1>
+    <div class="text-center my-4">
+        {% for category in categories %}
+            <span class="badge bg-dark me-4">
+                <a href="{{ path('app_item_index', {id: category.id}) }}"  class="text-decoration-none text-reset">{{ category.name }}</a>
+            </span>
+        {% endfor %}
+    </div>
+    <div class="d-flex flex-wrap gap-3 justify-content-center">
+        {% for item in items %}
+            <div class="card bg-light mb-3 text-center" style="max-width: 20rem;">
+                <div class="card-header">
+                    <a href="{{ path('app_item_show', {id: item.id})}}" class="text-decoration-none">
+                        {{ item.title }}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title text-center">{{ item.startingPrice }} €</h4>
+                    <p class="card-text text-center">{{ item.translatedStatus }}</p>
+                </div>
+                <div class="card-footer">
+                    👨🏻‍⚖️ {{ item.offers | length }}
+                </div>
+            </div>
+        {% endfor %}        
+    </div>
+
+{% endblock %}

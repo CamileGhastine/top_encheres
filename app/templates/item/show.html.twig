@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ item.title }}{% endblock %}
+
+{% block body %}
+    <div class="card bg-light mb-3">
+        <h1 class="card-header text-center">{{ item.title }}</h1>
+        <div class="card-body text-center">
+            <h4 class="card-title">{{ item.startingPrice }} €</h4>
+            <p class="card-text">{{ item.description }}</p>
+        </div>
+         <div class="card-footer text-center">{{ item.translatedStatus }}</div>
+         {% if item.winner %}
+            <div class="card-footer text-center">Remportée par {{ item.winner.email }} pour {{ item.finalPrice }} €</div>
+         {% endif %}
+    </div>
+    {% if existingOffer %}
+        <div class="alert alert-dismissible alert-info text-center">
+           Vous avez placez une ecnhère à {{ existingOffer.amount }} €
+        </div>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <ul class="list-group">
+            {% for offer in item.offers %}
+                <li class="list-group-item d-flex justify-content-start align-items-center">
+                    {{ offer.user.email}}
+                    <span class="badge bg-primary rounded-pill mx-4">{{ offer.amount }} €</span>
+                </li>                
+            {% endfor %}
+        </ul>
+        {% if item.status === constant('App\\Entity\\Item::UNPUBLISHED') %}
+            <a class="btn btn-success" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Publier</a>
+        {% elseif item.status == constant('App\\Entity\\Item::PUBLISHED') and item.offers | length > 0 %}
+            <a class="btn btn-warning" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Fermer l'enchère</a>
+        {% elseif item.offers | length == 0%}    
+            <a class="btn btn-danger" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Dépublier</a>
+        {% endif %}
+    {% else %}
+        {% if app.user and not existingOffer %}
+            {{ form_start(form)}}
+            {{ form_row(form.amount)}}
+            <button class="btn btn-primary" type="submit">Enchérir</button>
+            {{ form_end(form)}}
+        {% endif %}        
+    {% endif %}
+{% endblock %}

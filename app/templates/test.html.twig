@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  {{ form_start(form) }}
+  {{ form_row(form.amount) }}
+  <button type="submit">Enregistrer</button>
+  {{ form_end(form) }}
+
+{% endblock %}
