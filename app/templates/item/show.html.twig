@@ -37,7 +37,10 @@
         {% endif %}
         <div class="text-center">
             <a href="{{ path('app_admin_save', {id:item.id}) }}" class="text-decoration-none mx-4">✏️</a>
-            <a href="{{ path('app_admin_delete', {id: item.id}) }}" class="text-decoration-none mx-4">❌</a>
+            <form action="{{ url('app_admin_delete', { id: item.id }) }}" method="post">
+                <input type="hidden" name="token" value="{{ csrf_token(csrf_secret ~ item.id) }}">
+                <button type="submit">❌</button>
+            </form>
         </div>
     {% else %}
         {% if app.user and not existingOffer %}
