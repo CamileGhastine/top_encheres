@@ -28,13 +28,11 @@
                 </li>                
             {% endfor %}
         </ul>
-        {% if item.status === constant('App\\Entity\\Item::UNPUBLISHED') %}
-            <a class="btn btn-success" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Publier</a>
-        {% elseif item.status == constant('App\\Entity\\Item::PUBLISHED') and item.offers | length > 0 %}
-            <a class="btn btn-warning" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Fermer l'enchère</a>
-        {% elseif item.offers | length == 0%}    
-            <a class="btn btn-danger" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Dépublier</a>
+
+        {% if item.status !== constant('App\\Entity\\Item::CLOSED') %}
+            <a class="btn btn-{{ (item | button).color }}" href="{{ path('app_item_changeStatus', {id: item.id}) }}">{{ (item | button).value }}</a>
         {% endif %}
+        
         <div class="text-center">
             <a href="{{ path('app_admin_save', {id:item.id}) }}" class="text-decoration-none mx-4">✏️</a>
             {# On crée un formulaire de suppression avec un champs caché (hidden) qui contient un token généré à partir d'un mot secret qu'on a stocké dans le .env.local #}

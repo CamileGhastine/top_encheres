@@ -23,7 +23,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="card-title text-center">{{ item.startingPrice }} €</h4>
-                    <p class="card-text text-center">{{ item.translatedStatus }}</p>
+                    <p class="card-text text-center text-{{ item.status | color }}">{{ item.translatedStatus }}</p>
                 </div>
                 <div class="card-footer">
                     👨🏻‍⚖️ {{ item.offers | length }}
