@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création d'un objet{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-dark">Enregistrer</button>
+    {{ form_end(form) }}
+{% endblock %}

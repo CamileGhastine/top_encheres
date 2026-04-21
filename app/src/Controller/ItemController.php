@@ -89,7 +89,7 @@ final class ItemController extends AbstractController
         ]);
     }
 
-     #[Route('/item/changeStatus/{id<[0-9]+>}', name: 'app_item_changeStatus')]
+    #[Route('/item/changeStatus/{id<[0-9]+>}', name: 'app_item_changeStatus')]
     public function changeStatus(Item $item, EntityManagerInterface $em): Response
     {
         if($item->getStatus() === Item::CLOSED) {

@@ -35,6 +35,10 @@
         {% elseif item.offers | length == 0%}    
             <a class="btn btn-danger" href="{{ path('app_item_changeStatus', {id: item.id}) }}">Dépublier</a>
         {% endif %}
+        <div class="text-center">
+            <a href="{{ path('app_admin_save', {id:item.id}) }}" class="text-decoration-none mx-4">✏️</a>
+            <a href="{{ path('app_admin_delete', {id: item.id}) }}" class="text-decoration-none mx-4">❌</a>
+        </div>
     {% else %}
         {% if app.user and not existingOffer %}
             {{ form_start(form)}}

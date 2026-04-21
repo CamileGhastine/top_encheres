@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Item;
+use App\Form\ItemType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+final class AdminController extends AbstractController
+{
+    public function __construct(private EntityManagerInterface $em)
+    {
+    }
+
+    #[Route('/admin/delete/{id<[0-9]+>}', name: 'app_admin_delete')]
+    public function delete(Item $item): Response
+    {
+        $id = $item->getId();
+
+        $this->em->remove($item);
+        $this->em->flush();
+        $this->addFlash('success', "L'objet a été supprimé avec succès.");
+
+        return $this->redirectToRoute('app_item_index');
+    }
+
+    #[Route('/admin/save/{id<[0-9]+>?}', name: 'app_admin_save')]
+    public function save(?Item $item, Request $request): Response
+    {
+        $form = $this->createForm(ItemType::class, $item);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $item = $form->getData();            
+            $this->em->persist($item);
+            $this->em->flush();
+
+            $this->addFlash('success', "L'objet a été ajouté avec succès.");
+
+            return $this->redirectToRoute('app_item_index');
+        }
+        
+        return $this->render('admin/create.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+}
