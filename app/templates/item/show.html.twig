@@ -40,7 +40,7 @@
             {# On crée un formulaire de suppression avec un champs caché (hidden) qui contient un token généré à partir d'un mot secret qu'on a stocké dans le .env.local #}
             <form action="{{ url('app_admin_delete', { id: item.id }) }}" method="post">
                 <input type="hidden" name="token" value="{{ csrf_token(csrf_secret ~ item.id) }}">
-                <button type="submit">❌</button>
+                <button type="submit" onclick="return confirm('Voulez-vous supprimer cet article ?')">❌</button>
             </form>
         </div>
     {% else %}

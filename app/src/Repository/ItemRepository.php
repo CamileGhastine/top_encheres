@@ -17,16 +17,17 @@ class ItemRepository extends ServiceEntityRepository
         parent::__construct($registry, Item::class);
     }
 
-       public function findPublishedAndClosedItems($id = null): array
+       public function findPublishedAndClosedItemsWithOffers($id = null): array
        {
             $result = $this->createQueryBuilder('i');
 
-            $result->Where('i.status = :val1')
+            $result->leftJoin('i.offers', 'o')
+            ->addSelect('o')
+            ->Where('i.status = :val1')
             ->orWhere('i.status = :val2')
             ->setParameter('val1', Item::PUBLISHED, ParameterType::STRING)
             ->setParameter('val2', Item::CLOSED, ParameterType::STRING)
             ;
-
 
             if($id) {
                 $result->join('i.categories', 'c')

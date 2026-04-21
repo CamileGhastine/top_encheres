@@ -14,7 +14,10 @@ class OfferType extends AbstractType
     {
         $builder
             ->add('amount', NumberType::class, [
-                'label' => 'Montant de votre enchère' 
+                'label' => 'Montant de votre enchère',
+                'attr' => [
+                    'autocomplete' => 'off',
+                ]
             ])
         ;
     }
