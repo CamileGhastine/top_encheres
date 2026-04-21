@@ -37,6 +37,7 @@
         {% endif %}
         <div class="text-center">
             <a href="{{ path('app_admin_save', {id:item.id}) }}" class="text-decoration-none mx-4">✏️</a>
+            {# On crée un formulaire de suppression avec un champs caché (hidden) qui contient un token généré à partir d'un mot secret qu'on a stocké dans le .env.local #}
             <form action="{{ url('app_admin_delete', { id: item.id }) }}" method="post">
                 <input type="hidden" name="token" value="{{ csrf_token(csrf_secret ~ item.id) }}">
                 <button type="submit">❌</button>

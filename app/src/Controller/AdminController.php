@@ -19,8 +19,10 @@ final class AdminController extends AbstractController
     #[Route('/admin/delete/{id<[0-9]+>}', name: 'app_admin_delete')]
     public function delete(Item $item, Request $request): Response
     {
+        // Récupère le token de la Request
         $submittedToken = $request->getPayload()->get('token');
 
+        // On vérifie si le token est valide.
         if (!$this->isCsrfTokenValid($_ENV['CSRF_SECRET'] . $item->getId(), $submittedToken)) {
             $this->addFlash('danger', 'Token invalide');
 
