@@ -59,8 +59,6 @@ class ItemRepository extends ServiceEntityRepository
             $result = $this->createQueryBuilder('i')
             ->leftJoin('i.offers', 'o')
             ->addSelect('o')
-            ->leftJoin('o.user', 'u')
-            ->addSelect('u')
             ;
 
             if($id) {

@@ -16,6 +16,8 @@ class OfferHandler
 
     public function offerExists($user, $item)
     {
+        if ($item->getStatus() === Item::UNPUBLISHED) return false;
+
         $this->offerExists = $this->offerRepository->findOneBy([
                 'user' => $user,
                 'item' => $item,
