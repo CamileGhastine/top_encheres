@@ -32,15 +32,7 @@ class EmailSender
         $text = "Vous avez remporté l'enchère.\nMontant à payer : {$price} €\nLien : {$urlWithToken}";
         $html = '<p>Vous avez remportez l\'enchère. Payer ' . $price . '€</p> <a href="' . $urlWithToken . '">Payer</a>';
 
-
-        $email = (new Email())
-            ->from($from)
-            ->to($to)
-            ->subject($subject)
-            ->text($text)           
-            ->html($html);
-
-        $this->mailer->send($email);
+       // Envoyer un mail ici
     }
 
     public function sendPaymentSuccess($item)
@@ -51,14 +43,7 @@ class EmailSender
         $text = "Votre payement a été effectué avec succès.";
         $html = '<p>Votre payement a été effectué avec succès</a>';
 
-        $email = (new Email())
-            ->from($from)
-            ->to($to)
-            ->subject($subject)
-            ->text($text)           
-            ->html($html);
-
-        $this->mailer->send($email);
+       // Envoyer un mail ici
     }
 
     public function sendPaymentCancel($item)

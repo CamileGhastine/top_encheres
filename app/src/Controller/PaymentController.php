@@ -30,20 +30,9 @@ final class PaymentController extends AbstractController
         }
         
         // Vérifier si le user est connecté
-        if(!$this->getUser()){
-            $this->addFlash('danger', 'Connectez vous et cliquez à nouveau sur le lien de payement');
-
-            return $this->redirectToRoute('app_login');
-            
-        }
         
         // Vérifier si c'est bien lui qui a gagné l'enchère
-        if(!$item || $this->getUser()->getId() !== $item->getWinner()->getId()) {
-            $this->addFlash('danger', 'Un problème est survenu lors de la génération de votre lien de payement');
-
-            return $this->redirectToRoute('app_item_index');
-        }
-
+        
         Stripe::setApiKey($_ENV['STRIPE_SECRET']);
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -77,8 +66,7 @@ final class PaymentController extends AbstractController
     #[Route('/payment/success/{id}', name: 'app_payment_success')]
     public function success(Item $item): Response
     {
-        $this->addFlash('success', 'payement réaliser avec succès');
-        $this->emailSender->sendPaymentSuccess($item);
+        // Informé l'utilisateur que son payement a été effectué par deux moyens
 
         return $this->redirectToRoute('app_item_index');
     }
