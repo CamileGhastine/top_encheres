@@ -94,3 +94,9 @@ docker-compose logs -f
 ```bash
 docker-compose down
 ```
+
+## Carte de test pour Stripe
+
+4242 4242 4242 4242
+CVC :123
+MM/AA : Mois/Année posterieur à la date du jour

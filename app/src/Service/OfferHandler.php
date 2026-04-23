@@ -4,14 +4,20 @@ namespace App\Service;
 
 use App\Entity\Item;
 use App\Repository\OfferRepository;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class OfferHandler
 {
     private $offerExists = false;
+    private Session $session;
 
-    public function __construct(private OfferRepository $offerRepository)
+    public function __construct(
+        private OfferRepository $offerRepository,
+        private RequestStack $requestStack
+        )
     {
+        $this->session = $this->requestStack->getSession();
     }
 
     public function offerExists($user, $item)
@@ -26,10 +32,10 @@ class OfferHandler
         return $this->offerExists;
     }
 
-    private function isAmountValid(Request $request, $amount, Item $item)
+    private function isAmountValid(float $amount, Item $item)
     {
         if ($amount < $item->getStartingPrice()) {
-            $request->getSession()->getBag('flashes')->add('danger', 'L’enchère doit être supérieure ou égale à ' . $item->getStartingPrice() . ' €.');
+            $this->session->getFlashBag()->add('danger', 'L’enchère doit être supérieure ou égale à ' . $item->getStartingPrice() . ' €.');
         
             return false;
         }
@@ -37,14 +43,14 @@ class OfferHandler
         return true;
     }
 
-    public function isValid(Request $request, float $amount, Item $item, $user)
+    public function isValid(float $amount, Item $item, $user)
     {
         if ($this->offerExists) {
-            $request->getSession()->getBag('flashes')->add('danger', 'Vosu avez déjà placé une enchère sur cet objet.');
+           $this->session->getFlashBag()->add('danger', 'Vosu avez déjà placé une enchère sur cet objet.');
 
             return false;
         }
-        if(!$this->isAmountValid($request, $amount, $item)) {
+        if(!$this->isAmountValid($amount, $item)) {
             return false;
         }
 

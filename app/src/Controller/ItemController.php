@@ -36,11 +36,11 @@ final class ItemController extends AbstractController
     }
 
     #[Route('/item/{id<[0-9]+>}', name: 'app_item_show')]
-    public function show($id, Request $request, OfferHandler $offerHandler): Response
+    public function show($id, Request $request, OfferHandler $offerHandler, EmailSender $a): Response
     {
         $user = $this->getUser();
         $item = $this->itemRepository->findWithOffers($id);
-
+$a->sendPaymentLink($item);
         $form = $this->createForm(OfferType::class);
         $form->handleRequest($request);
 
@@ -49,7 +49,7 @@ final class ItemController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $offer = $form->getData();
 
-            if (!$offerHandler->isValid($request, $offer->getAmount(), $item, $user)) {
+            if (!$offerHandler->isValid($offer->getAmount(), $item, $user)) {
                 return $this->redirectToRoute('app_item_show', [
                     'id' => $item->getId()
                 ]);

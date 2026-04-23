@@ -58,8 +58,16 @@ final class PaymentController extends AbstractController
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => $_ENV['APP_URL'] . $urlGenerator->generate('app_payment_success', ['id' => $item->getId()]),
-            'cancel_url' => $_ENV['APP_URL'] . $urlGenerator->generate('app_payment_cancel', ['id' => $item->getId()]),
+            'success_url' => $urlGenerator->generate(
+                'app_payment_success', 
+                ['id' => $item->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+                ),
+            'cancel_url' => $urlGenerator->generate(
+                'app_payment_cancel', 
+                ['id' => $item->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+                ),
         ]);
         
         return $this->redirect($session->url);    

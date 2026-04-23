@@ -23,7 +23,11 @@ class EmailSender
         $subject = $subject ?: 'Enchère remportée : ' . $item->getTitle();
 
         $price = $item->getFinalPrice();
-        $url = $_ENV['APP_URL'] . $this->urlGenerator->generate('app_payment', ['id' => $item->getId()]);
+        $url = $this->urlGenerator->generate(
+            'app_payment', 
+            ['id' => $item->getId()], 
+            UrlGeneratorInterface::ABSOLUTE_URL
+            );
         $urlWithToken = $this->uriSigner->sign($url);        
         $text = "Vous avez remporté l'enchère.\nMontant à payer : {$price} €\nLien : {$urlWithToken}";
         $html = '<p>Vous avez remportez l\'enchère. Payer ' . $price . '€</p> <a href="' . $urlWithToken . '">Payer</a>';
