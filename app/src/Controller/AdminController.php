@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Form\ItemType;
+use App\Service\ItemHandler;
+use App\Service\OfferHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,5 +57,27 @@ final class AdminController extends AbstractController
         return $this->render('admin/create.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/admin/changeStatus/{id<[0-9]+>}', name: 'app_admin_changeStatus')]
+    public function changeStatus(Item $item, ItemHandler $itemHandler, OfferHandler $offerHandler): Response
+    {
+        // Si le status est déjà closed, on redirige direct.
+        if($item->getStatus() === Item::CLOSED) {
+            return $this->redirectToRoute('app_item_show', ['id' => $item->getId()]);
+        }
+
+        // changer le status
+        $item = $itemHandler->changeStatus($item);
+
+        // Si le status passe en close trouver le winner et el finalPrice
+
+        if($item->getStatus() === Item::CLOSED) {
+            $item = $offerHandler->closeBid($item);
+        }
+
+        $this->em->flush();
+
+        return $this->redirectToRoute('app_item_show', ['id' => $item->getId()]);
     }
 }

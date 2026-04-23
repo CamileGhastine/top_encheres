@@ -30,7 +30,7 @@
         </ul>
 
         {% if item.status !== constant('App\\Entity\\Item::CLOSED') %}
-            <a class="btn btn-{{ (item | button).color }}" href="{{ path('app_item_changeStatus', {id: item.id}) }}">{{ (item | button).value }}</a>
+            <a class="btn btn-{{ (item | button).color }}" href="{{ path('app_admin_changeStatus', {id: item.id}) }}">{{ (item | button).value }}</a>
         {% endif %}
         
         <div class="text-center">
