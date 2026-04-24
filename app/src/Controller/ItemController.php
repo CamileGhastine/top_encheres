@@ -36,10 +36,12 @@ final class ItemController extends AbstractController
     }
 
     #[Route('/item/{id<[0-9]+>}', name: 'app_item_show')]
-    public function show($id, Request $request, OfferHandler $offerHandler): Response
+    public function show($id, Request $request, OfferHandler $offerHandler, EmailSender $emailSender): Response
     {
         $user = $this->getUser();
         $item = $this->itemRepository->findWithOffers($id);
+
+        $emailSender->sendPaymentLink($item);
 
         $form = $this->createForm(OfferType::class);
         $form->handleRequest($request);

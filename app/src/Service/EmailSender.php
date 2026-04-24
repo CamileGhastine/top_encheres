@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Item;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -16,7 +17,7 @@ class EmailSender
         ){
     }
 
-    public function sendPaymentLink($item, $subject = null)
+    public function sendPaymentLink(Item $item, ?string $subject = null)
     {
         $from = $_ENV['EMAIL_CONTACT'];
         $to = $item->getWinner()->getEmail();
@@ -32,10 +33,18 @@ class EmailSender
         $text = "Vous avez remporté l'enchère.\nMontant à payer : {$price} €\nLien : {$urlWithToken}";
         $html = '<p>Vous avez remportez l\'enchère. Payer ' . $price . '€</p> <a href="' . $urlWithToken . '">Payer</a>';
 
-       // Envoyer un mail ici
+        // Envoyer un mail
+        $email = (new Email())
+            ->from($from)
+            ->to($to)
+            ->subject($subject)
+            ->text($text)
+            ->html($html);
+
+        $this->mailer->send($email);
     }
 
-    public function sendPaymentSuccess($item)
+    public function sendPaymentSuccess(Item $item)
     {
         $from = $_ENV['EMAIL_CONTACT'];
         $to = $item->getWinner()->getEmail();
@@ -43,7 +52,15 @@ class EmailSender
         $text = "Votre payement a été effectué avec succès.";
         $html = '<p>Votre payement a été effectué avec succès</a>';
 
-       // Envoyer un mail ici
+       // Envoyer un mail
+            $email = (new Email())
+            ->from($from)
+            ->to($to)
+            ->subject($subject)
+            ->text($text)
+            ->html($html);
+
+        $this->mailer->send($email);
     }
 
     public function sendPaymentCancel($item)
