@@ -29,7 +29,7 @@ class EmailSender
             ['id' => $item->getId()], 
             UrlGeneratorInterface::ABSOLUTE_URL
             );
-        $urlWithToken = $this->uriSigner->sign($url);        
+        $urlWithToken = $this->uriSigner->sign($url);
         $text = "Vous avez remporté l'enchère.\nMontant à payer : {$price} €\nLien : {$urlWithToken}";
         $html = '<p>Vous avez remportez l\'enchère. Payer ' . $price . '€</p> <a href="' . $urlWithToken . '">Payer</a>';
 

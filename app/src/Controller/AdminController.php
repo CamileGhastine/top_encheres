@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Form\ItemType;
+use App\Service\EmailSender;
 use App\Service\ItemHandler;
 use App\Service\OfferHandler;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,7 +61,7 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/changeStatus/{id<[0-9]+>}', name: 'app_admin_changeStatus')]
-    public function changeStatus(Item $item, ItemHandler $itemHandler, OfferHandler $offerHandler): Response
+    public function changeStatus(Item $item, ItemHandler $itemHandler, OfferHandler $offerHandler, EmailSender $emailSender): Response
     {
         // Si le status est déjà closed, on redirige direct.
         if($item->getStatus() === Item::CLOSED) {
@@ -71,9 +72,9 @@ final class AdminController extends AbstractController
         $item = $itemHandler->changeStatus($item);
 
         // Si le status passe en close trouver le winner et el finalPrice
-
         if($item->getStatus() === Item::CLOSED) {
             $item = $offerHandler->closeBid($item);
+            $emailSender->sendPaymentLink($item);
         }
 
         $this->em->flush();

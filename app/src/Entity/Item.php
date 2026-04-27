@@ -59,6 +59,9 @@ class Item
     #[ORM\ManyToOne]
     private ?User $winner = null;
 
+    #[ORM\OneToOne(mappedBy: 'item', cascade: ['persist', 'remove'])]
+    private ?Payment $payment = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -200,6 +203,23 @@ class Item
     public function setWinner(?User $winner): static
     {
         $this->winner = $winner;
+
+        return $this;
+    }
+
+    public function getPayment(): ?Payment
+    {
+        return $this->payment;
+    }
+
+    public function setPayment(Payment $payment): static
+    {
+        // set the owning side of the relation if necessary
+        if ($payment->getItem() !== $this) {
+            $payment->setItem($this);
+        }
+
+        $this->payment = $payment;
 
         return $this;
     }
