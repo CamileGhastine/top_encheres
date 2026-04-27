@@ -5,6 +5,9 @@
 {% block body %}
     <div class="card bg-light mb-3">
         <h1 class="card-header text-center">{{ item.title }}</h1>
+        {% for image in item.images %}
+            <img src="{{ asset(image.path) }}" alt="{{ image.alt }}">
+        {% endfor %}
         <div class="card-body text-center">
             <h4 class="card-title">{{ item.startingPrice }} €</h4>
             <p class="card-text">{{ item.description }}</p>

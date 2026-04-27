@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Entity\Item;
 use App\Form\ItemType;
 use App\Service\EmailSender;
@@ -12,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class AdminController extends AbstractController
 {
@@ -40,13 +42,38 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/save/{id<[0-9]+>?}', name: 'app_admin_save')]
-    public function save(?Item $item, Request $request): Response
+    public function save(?Item $item, Request $request, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(ItemType::class, $item);
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            $item = $form->getData();            
+            $item = $form->getData();
+
+            $imageFile = $form->get('image')->getData();
+
+            // Il faudrait placer cette aprtie dans un service pour le sortir du controleur
+            if($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+
+                // this is needed to safely include the file name as part of the URL
+                $safeFilename = $slugger->slug($originalFilename);
+                
+                $newFilename = 'img_' .uniqid() . '-' .$safeFilename . '.' . $imageFile->guessExtension();
+
+                // Move the file to the directory where brochures are stored
+                $imageFile->move('images', $newFilename);
+
+                $image = new Image;
+                $image->setPath('images/' . $newFilename)
+                ->setAlt($originalFilename)
+                ->setItem($item)
+                ;
+                $this->em->persist($image);
+
+                $item->addImage($image);
+            }
+            
             $this->em->persist($item);
             $this->em->flush();
 

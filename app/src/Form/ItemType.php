@@ -8,6 +8,7 @@ use App\Repository\CategoryRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -48,6 +49,17 @@ class ItemType extends AbstractType
                 'constraints' => [ 
                     new Assert\Choice(['choices' => [Item::UNPUBLISHED, Item::PUBLISHED]])
                 ]
+            ])
+            ->add('image', FileType::class, [
+                'required' => false,
+                'mapped' => false,
+                'constraints' => [
+                    new Assert\File(
+                        maxSize: '2048k',
+                        extensions: ['jpeg', 'jpg', 'png'],
+                    )
+                ],
+                
             ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,

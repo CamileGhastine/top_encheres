@@ -62,10 +62,17 @@ class Item
     #[ORM\OneToOne(mappedBy: 'item', cascade: ['persist', 'remove'])]
     private ?Payment $payment = null;
 
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'item', orphanRemoval: true)]
+    private Collection $images;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->offers = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,6 +227,36 @@ class Item
         }
 
         $this->payment = $payment;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getItem() === $this) {
+                $image->setItem(null);
+            }
+        }
 
         return $this;
     }
