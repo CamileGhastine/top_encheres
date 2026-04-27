@@ -3,7 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Item;
+use App\Entity\Payment;
+use App\Repository\PaymentRepository;
 use App\Service\EmailSender;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,10 +19,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class PaymentController extends AbstractController
 {
-    public function __construct(private EmailSender $emailSender)
+    public function __construct(
+        private EmailSender $emailSender, 
+        private EntityManagerInterface $em, 
+        private PaymentRepository $paymentRepository
+        )
     {
     }
 
+    // Ce controller fait trop de chose il pourrait être interessant de creer par exemple un Payment handler avec les méthodes validate et hydrate et un StripeHandler 
     #[Route('/payment/{id}', name: 'app_payment')]
     public function pay(?Item $item, UriSigner $uriSigner, Request $request, UrlGeneratorInterface $urlGenerator): Response
     {      
@@ -41,6 +50,15 @@ final class PaymentController extends AbstractController
             $this->addFlash('danger', 'Payement invalide.');
 
             return $this->redirectToRoute('app_item_index');            
+        }
+
+        $payment = $this->paymentRepository->findOneBy(['item' => $item]);
+
+        if($payment && in_array($payment->getStatus(), [Payment::PROCESSING, Payment::SUCCESS])) {
+            $this->addFlash('danger', 'Vous avez déjà réalisé ce payement.');
+
+            return $this->redirectToRoute('app_item_index');            
+
         }
         
         // Paiement Stripe
@@ -70,16 +88,36 @@ final class PaymentController extends AbstractController
                 ),
         ]);
 
+
+        if (!$payment) {
+            // Avant la redirection on crée notre objet $payment (s'il n'exise pas déjà) qu'on persist en BDD
+            $payment = new Payment;
+            $payment->setStripeId('toto123')
+            ->setAmount($item->getFinalPrice())
+            ->setCreatedAt(new DateTimeImmutable('now'))
+            ->setStatus(Payment::PROCESSING)
+            ->setItem($item)
+            ->setUser($item->getWinner())
+            ;
+
+            $this->em->persist($payment);
+            $this->em->flush();
+        }
+      
         // Redirection vers le formulaire de paiement géré par Stripe
         return $this->redirect($session->url);    
     }
 
 
     #[Route('/payment/success/{id}', name: 'app_payment_success')]
-    public function success(Item $item, EmailSender $emailSender): Response
+    public function success(Item $item): Response
     {
         $this->addFlash('success', 'Votre payement a été réalisé avec succès.');
-        $emailSender->sendPaymentSuccess($item);
+        $this->emailSender->sendPaymentSuccess($item);
+
+        $payment = $this->paymentRepository->findOneby(['item' => $item]);
+        $payment->setStatus(Payment::PROCESSING);
+        $this->em->flush();
 
         return $this->redirectToRoute('app_item_index');
     }
