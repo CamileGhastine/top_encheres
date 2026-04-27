@@ -8,6 +8,7 @@ use App\Repository\PaymentRepository;
 use App\Service\EmailSender;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Service\StripeHandler;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +30,7 @@ final class PaymentController extends AbstractController
 
     // Ce controller fait trop de chose il pourrait être interessant de creer par exemple un Payment handler avec les méthodes validate et hydrate et un StripeHandler 
     #[Route('/payment/{id}', name: 'app_payment')]
-    public function pay(?Item $item, UriSigner $uriSigner, Request $request, UrlGeneratorInterface $urlGenerator): Response
+    public function pay(?Item $item, UriSigner $uriSigner, Request $request, StripeHandler $stripe): Response
     {      
         // Vérifier le Token_csrf
         if(!$uriSigner->check($request->getUri())) {
@@ -61,33 +62,8 @@ final class PaymentController extends AbstractController
 
         }
         
-        // Paiement Stripe
-        Stripe::setApiKey($_ENV['STRIPE_SECRET']);
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'eur',
-                    'product_data' => [
-                        'name' => $item->getTitle(),
-                    ],
-                    'unit_amount' => $item->getFinalPrice() * 100, // en centimes
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => $urlGenerator->generate(
-                'app_payment_success', 
-                ['id' => $item->getId()],
-                UrlGeneratorInterface::ABSOLUTE_URL
-                ),
-            'cancel_url' => $urlGenerator->generate(
-                'app_payment_cancel', 
-                ['id' => $item->getId()],
-                UrlGeneratorInterface::ABSOLUTE_URL
-                ),
-        ]);
-
+        // Créer la session Stripe
+        $session = $stripe->createSession($item);
 
         if (!$payment) {
             // Avant la redirection on crée notre objet $payment (s'il n'exise pas déjà) qu'on persist en BDD
