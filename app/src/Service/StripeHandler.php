@@ -12,11 +12,11 @@ class StripeHandler
     public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
     }
-    
+
     public function createSession(Item $item)
     {
         Stripe::setApiKey($_ENV['STRIPE_SECRET']);
-        return Session::create([
+        $session = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [[
                 'price_data' => [
@@ -42,4 +42,5 @@ class StripeHandler
         ]);
     }
 
+    return $session;
 }
